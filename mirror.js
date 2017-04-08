@@ -58,7 +58,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory, actionOccurredPreviously) {
         sFiles.forEach(sFile => {
             if (forbiddenFiles[sFile]) { return; }
             if (!mFiles.filter(mFile => mFile === sFile).length) {
-                // Exists in SLAVE, not in MASTER. Delete file from SLAVE
+                // Exists in SLAVE, not in MASTER. Delete file from SLAVE.
                 console.info(`delete file\t${formatPath(path.join(sFullDirectory, sFile))}`);
                 actionOccurred = true;
                 deleteFile(path.join(sFullDirectory, sFile));
@@ -80,7 +80,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory, actionOccurredPreviously) {
                 const mModificationTime = getTimestamp(path.join(mFullDirectory, mFile));
                 const sModificationtime = getTimestamp(path.join(sFullDirectory, mFile));
                 if(timestampsDiffer(mModificationTime, sModificationtime)) {
-                    // Files were modified at a different time. Copy file to SLAVE (and overwrite)
+                    // Files were modified at a different time. Copy file to SLAVE (and overwrite).
                     console.info(`update file\t${formatPath(path.join(sFullDirectory, mFile))}`);
                     actionOccurred = true;
                     copyFile(path.join(mFullDirectory, mFile), path.join(sFullDirectory, mFile));
@@ -101,7 +101,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory, actionOccurredPreviously) {
         sDirectories.forEach(sDirectory => {
             if (forbiddenDirectories[sDirectory]) { return; }
             if (!mDirectories.filter(mDirectory => mDirectory === sDirectory).length) {
-                // Exists in SLAVE, not in MASTER. Delete file from SLAVE
+                // Exists in SLAVE, not in MASTER. Delete directory from SLAVE.
                 console.info(`delete dir\t${formatPath(path.join(sFullDirectory, sDirectory))}`);
                 actionOccurred = true;
                 deleteDirectory(path.join(sFullDirectory, sDirectory));
@@ -114,12 +114,12 @@ function mirrorFiles(mFullDirectory, sFullDirectory, actionOccurredPreviously) {
         mDirectories.forEach(mDirectory => {
             if (forbiddenDirectories[mDirectory]) { return; }
             if (!sDirectories.filter(sDirectory => sDirectory === mDirectory).length) {
-                // Exists in MASTER, not in SLAVE. Copy directory to SLAVE.
+                // Exists in MASTER, not in SLAVE. Create directory on SLAVE.
                 console.info(`create dir\t${formatPath(path.join(sFullDirectory, mDirectory))}`);
                 actionOccurred = true;
                 createDirectory(path.join(sFullDirectory, mDirectory));
             }
-            // Exists in MASTER and in SLAVE, recurse.
+            // Exists in MASTER and in SLAVE. Recurse.
             actionOccurred = mirrorFiles(path.join(mFullDirectory, mDirectory), path.join(sFullDirectory, mDirectory), actionOccurred);
         });
     }
