@@ -2,7 +2,7 @@
 
 let infoNoLn = false;
 
-console.infoNewLn = args => (infoNoLn && !console.info()) && !console.info(args) && (infoNoLn = false);
+console.infoNewLn = args => ((infoNoLn && console.info()) || true) && (console.info(args) || true) && (infoNoLn = false);
 console.infoNoLn = args => (infoNoLn = true) && process.stdout.write(args);
 
 const path = require("path");
