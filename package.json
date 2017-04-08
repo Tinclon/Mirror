@@ -3,4 +3,7 @@
   "version": "1.0.0",
   "description": "Mirror files and directories from MASTER volume to SLAVE volume",
   "main": "mirror.js",
+  "devDependencies": {
+    "fs-extra": "2.1.2"
+  }
 }

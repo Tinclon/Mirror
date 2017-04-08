@@ -3,7 +3,7 @@
 console.infoNoLn = args => process.stdout.write(args);
 
 const path = require("path");
-const fs = require("fs");
+const fs = require("fs-extra");
 const util = require("util");
 
 const forbiddenDirectories = {};
@@ -28,10 +28,10 @@ const getDirectories = srcpath => fs.readdirSync(srcpath).filter(file => fs.stat
 const getFiles = srcpath => fs.readdirSync(srcpath).filter(file => !fs.statSync(path.join(srcpath, file)).isDirectory());
 const pathExists = srcpath => fs.existsSync(srcpath);
 const createDirectory = srcpath => fs.mkdirSync(srcpath);
-const deleteFile = srcpath => fs.unlinkSync(srcpath);
-const deleteDirectory = srcpath => (srcpath.length < 8 && (console.error("DON'T RECURSIVELY DELETE SHORT PATHS!!!") || true)) || fs.readdirSync(srcpath).forEach(file => fs.statSync(path.join(srcpath,file)).isDirectory() && deleteDirectory(path.join(srcpath,file)) || fs.unlinkSync(path.join(srcpath, file))) || fs.rmdirSync(srcpath);
-const copyFile = (srcPath, destPath) => fs.writeFileSync(destPath, fs.readFileSync(srcPath)) || fs.utimesSync(destPath, fs.statSync(srcPath).atime, fs.statSync(srcPath).mtime);
-const getTimestamp = srcPath => new Date(util.inspect(fs.statSync(srcPath).mtime));
+const deleteFile = srcpath => fs.removeSync(srcpath);
+const deleteDirectory = srcpath => fs.removeSync(srcpath);
+const copyFile = (srcpath, destpath) => fs.copySync(srcpath, destpath, {preserveTimestamps: true});
+const getTimestamp = srcpath => new Date(util.inspect(fs.statSync(srcpath).mtime));
 const timestampsDiffer = (timestamp1, timestamp2) =>
     Math.abs(timestamp1.getTime() - timestamp2.getTime()) >= 2000 &&
         // Account for DST
@@ -155,7 +155,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory, actionOccurredPreviously) {
         const sDirectory = path.join(paths.R, paths.S, directory);
         !pathExists(sDirectory) && (createDirectory(sDirectory) || console.info(`create dir\t${formatPath(sDirectory)}`));
         mirrorFiles(mDirectory, sDirectory, false) && console.info();
+        console.info();
     });
-    console.info();
 
 })();
