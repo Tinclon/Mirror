@@ -10,6 +10,7 @@ const forbiddenDirectories = {};
 forbiddenDirectories["$RECYCLE.BIN"] = true;
 forbiddenDirectories[".fseventsd"] = true;
 forbiddenDirectories[".Trashes"] = true;
+forbiddenDirectories[".TemporaryItems"] = true;
 forbiddenDirectories["System Volume Information"] = true;
 
 const forbiddenFiles = {};
@@ -154,7 +155,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory, actionOccurredPreviously) {
         const sDirectory = path.join(paths.R, paths.S, directory);
         !pathExists(sDirectory) && (createDirectory(sDirectory) || console.info(`create dir\t${formatPath(sDirectory)}`));
         mirrorFiles(mDirectory, sDirectory, false) && console.info();
-        console.info();
     });
+    console.info();
 
 })();
