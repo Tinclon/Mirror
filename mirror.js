@@ -1,9 +1,8 @@
 "use strict";
 
-let infoNoLn = false;
-
-console.infoNewLn = args => ((infoNoLn && console.info()) || true) && (console.info(args) || true) && (infoNoLn = false);
-console.infoNoLn = args => (infoNoLn = true) && process.stdout.write(args);
+let dot = false;
+console.status = args => ((dot && console.info()) || true) && (console.info(args) || true) && (dot = false);
+console.dot = () => (dot = true) && process.stdout.write(".");
 
 const path = require("path");
 const fs = require("fs-extra");
@@ -61,7 +60,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
             if (forbiddenFiles[sFile]) { return; }
             if (!mFiles.filter(mFile => mFile === sFile).length) {
                 // Exists in SLAVE, not in MASTER. Delete file from SLAVE.
-                console.infoNewLn(`delete file\t${formatPath(path.join(sFullDirectory, sFile))}`);
+                console.status(`delete file\t${formatPath(path.join(sFullDirectory, sFile))}`);
                 deleteFile(path.join(sFullDirectory, sFile));
             }
         });
@@ -73,7 +72,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
             if (forbiddenFiles[mFile]) { return; }
             if (!sFiles.filter(sFile => sFile === mFile).length) {
                 // Exists in MASTER, not in SLAVE. Copy file to SLAVE.
-                console.infoNewLn(`copy file\t${formatPath(path.join(sFullDirectory, mFile))}`);
+                console.status(`copy file\t${formatPath(path.join(sFullDirectory, mFile))}`);
                 copyFile(path.join(mFullDirectory, mFile), path.join(sFullDirectory, mFile));
             } else {
                 // Exists in MASTER and in SLAVE. Compare modification timestamps.
@@ -81,7 +80,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
                 const sModificationtime = getTimestamp(path.join(sFullDirectory, mFile));
                 if(timestampsDiffer(mModificationTime, sModificationtime)) {
                     // Files were modified at a different time. Copy file to SLAVE (and overwrite).
-                    console.infoNewLn(`update file\t${formatPath(path.join(sFullDirectory, mFile))}`);
+                    console.status(`update file\t${formatPath(path.join(sFullDirectory, mFile))}`);
                     copyFile(path.join(mFullDirectory, mFile), path.join(sFullDirectory, mFile));
                 }
             }
@@ -96,7 +95,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
             if (forbiddenDirectories[sDirectory]) { return; }
             if (!mDirectories.filter(mDirectory => mDirectory === sDirectory).length) {
                 // Exists in SLAVE, not in MASTER. Delete directory from SLAVE.
-                console.infoNewLn(`delete dir\t${formatPath(path.join(sFullDirectory, sDirectory))}`);
+                console.status(`delete dir\t${formatPath(path.join(sFullDirectory, sDirectory))}`);
                 deleteDirectory(path.join(sFullDirectory, sDirectory));
             }
         });
@@ -108,10 +107,10 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
             if (forbiddenDirectories[mDirectory]) { return; }
             if (!sDirectories.filter(sDirectory => sDirectory === mDirectory).length) {
                 // Exists in MASTER, not in SLAVE. Create directory on SLAVE.
-                console.infoNewLn(`create dir\t${formatPath(path.join(sFullDirectory, mDirectory))}`);
+                console.status(`create dir\t${formatPath(path.join(sFullDirectory, mDirectory))}`);
                 createDirectory(path.join(sFullDirectory, mDirectory));
             }
-            console.infoNoLn(".");
+            console.dot();
             // Exists in MASTER and in SLAVE. Recurse.
             mirrorFiles(path.join(mFullDirectory, mDirectory), path.join(sFullDirectory, mDirectory));
         });
@@ -129,13 +128,13 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
 
     if(!paths.M) {
         // MASTER Volume is not connected. Tell user and quit.
-        console.infoNewLn("Error: MASTER does not exist");
+        console.info("Error: MASTER does not exist");
         return;
     }
 
     if(!paths.S) {
         // SLAVE Volume is not connected. Tell user and quit.
-        console.infoNewLn("Error: SLAVE does not exist");
+        console.info("Error: SLAVE does not exist");
         return;
     }
 
@@ -144,8 +143,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         if(forbiddenDirectories[directory]) { return; }
         const mDirectory = path.join(paths.R, paths.M, directory);
         const sDirectory = path.join(paths.R, paths.S, directory);
-        !pathExists(sDirectory) && (createDirectory(sDirectory) || console.infoNewLn(`create dir\t${formatPath(sDirectory)}`));
-        console.infoNoLn(".");        
+        !pathExists(sDirectory) && (createDirectory(sDirectory) || console.status(`create dir\t${formatPath(sDirectory)}`));
         mirrorFiles(mDirectory, sDirectory, false);
     });
     console.info();
