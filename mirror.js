@@ -32,7 +32,7 @@ const pathExists = srcpath => fs.existsSync(srcpath);
 const createDirectory = srcpath => fs.mkdirSync(srcpath);
 const deleteFile = srcpath => fs.removeSync(srcpath);
 const deleteDirectory = srcpath => fs.removeSync(srcpath);
-const copyFile = (srcpath, destpath) => fs.copySync(srcpath, destpath, {preserveTimestamps: true}) || fs.utimesSync(destpath, fs.statSync(srcpath).atime, fs.statSync(srcpath).mtime);
+const copyFile = (srcpath, destpath) => fs.copySync(srcpath, destpath) || fs.utimesSync(destpath, fs.statSync(srcpath).atime, fs.statSync(srcpath).mtime);
 const getTimestamp = srcpath => new Date(util.inspect(fs.statSync(srcpath).mtime));
 const timestampsDiffer = (timestamp1, timestamp2) =>
     Math.abs(timestamp1.getTime() - timestamp2.getTime()) >= 2000 &&
@@ -144,7 +144,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         const mDirectory = path.join(paths.R, paths.M, directory);
         const sDirectory = path.join(paths.R, paths.S, directory);
         !pathExists(sDirectory) && (createDirectory(sDirectory) || console.status(`create dir\t${formatPath(sDirectory)}`));
-        mirrorFiles(mDirectory, sDirectory, false);
+        mirrorFiles(mDirectory, sDirectory);
     });
     console.info();
 
