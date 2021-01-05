@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Mirror files and directories from MASTER volume to SLAVE volume",
   "main": "mirror.js",
+  "type": "module",
   "devDependencies": {
-    "fs-extra": "2.1.2"
+    "fs-extra": "9.0.1"
   }
 }
