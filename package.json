@@ -4,6 +4,9 @@
   "description": "Mirror files and directories from MASTER volume to SLAVE volume",
   "main": "mirror.js",
   "type": "module",
+  "scripts": {
+    "start": "node mirror.js",
+  }
   "devDependencies": {
     "fs-extra": "9.0.1"
   }
