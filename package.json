@@ -5,7 +5,7 @@
   "main": "mirror.js",
   "type": "module",
   "scripts": {
-    "start": "node mirror.js",
+    "start": "node mirror.js"
   },
   "devDependencies": {
     "fs-extra": "9.0.1"
