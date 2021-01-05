@@ -79,7 +79,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         mFiles.filter(mFile => !forbiddenFiles[mFile]).filter(sFile => !sFile.startsWith("._")).forEach(mFile => {
             if (!sFiles.filter(sFile => sFile === mFile).length) {
                 // Exists in MASTER, not in SLAVE. Copy file to SLAVE.
-                console.status(`copy file\t${formatPath(join(sFullDirectory, mFile))}`);
+                console.status(`copy file to\t${formatPath(join(sFullDirectory, mFile))}`);
                 copyFile(join(mFullDirectory, mFile), join(sFullDirectory, mFile));
             } else {
                 // Exists in MASTER and in SLAVE. Compare modification timestamps.
