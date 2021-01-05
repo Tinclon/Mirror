@@ -16,11 +16,11 @@ Files at the root level of the volumes will not be affected.
 
 # Installation
 
-`npm install`
+`yarn install`
 
 # Usage
 
-`node mirror.js`
+`yarn start`
 
 # Note
 
