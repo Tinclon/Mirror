@@ -9,6 +9,7 @@ const fs = require("fs-extra");
 const util = require("util");
 
 const forbiddenDirectories = {};
+forbiddenDirectories["Movies"] = true;
 forbiddenDirectories["$RECYCLE.BIN"] = true;
 forbiddenDirectories[".fseventsd"] = true;
 forbiddenDirectories[".Trashes"] = true;
@@ -56,8 +57,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
     {
         const mFiles = getFiles(mFullDirectory);
         const sFiles = getFiles(sFullDirectory);
-        sFiles.forEach(sFile => {
-            if (forbiddenFiles[sFile]) { return; }
+        sFiles.filter(sFile => !forbiddenFiles[sFile]).forEach(sFile => {
             if (!mFiles.filter(mFile => mFile === sFile).length) {
                 // Exists in SLAVE, not in MASTER. Delete file from SLAVE.
                 console.status(`delete file\t${formatPath(path.join(sFullDirectory, sFile))}`);
@@ -68,8 +68,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
     {
         const mFiles = getFiles(mFullDirectory);
         const sFiles = getFiles(sFullDirectory);
-        mFiles.forEach(mFile => {
-            if (forbiddenFiles[mFile]) { return; }
+        mFiles.filter(mFile => !forbiddenFiles[mFile]).forEach(mFile => {
             if (!sFiles.filter(sFile => sFile === mFile).length) {
                 // Exists in MASTER, not in SLAVE. Copy file to SLAVE.
                 console.status(`copy file\t${formatPath(path.join(sFullDirectory, mFile))}`);
@@ -91,8 +90,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
     {
         const mDirectories = getDirectories(mFullDirectory);
         const sDirectories = getDirectories(sFullDirectory);
-        sDirectories.forEach(sDirectory => {
-            if (forbiddenDirectories[sDirectory]) { return; }
+        sDirectories.filter(sDirectory => !forbiddenDirectories[sDirectory]).forEach(sDirectory => {
             if (!mDirectories.filter(mDirectory => mDirectory === sDirectory).length) {
                 // Exists in SLAVE, not in MASTER. Delete directory from SLAVE.
                 console.status(`delete dir\t${formatPath(path.join(sFullDirectory, sDirectory))}`);
@@ -103,8 +101,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
     {
         const mDirectories = getDirectories(mFullDirectory);
         const sDirectories = getDirectories(sFullDirectory);
-        mDirectories.forEach(mDirectory => {
-            if (forbiddenDirectories[mDirectory]) { return; }
+        mDirectories.filter(mDirectory => !forbiddenDirectories[mDirectory]).forEach(mDirectory => {
             if (!sDirectories.filter(sDirectory => sDirectory === mDirectory).length) {
                 // Exists in MASTER, not in SLAVE. Create directory on SLAVE.
                 console.status(`create dir\t${formatPath(path.join(sFullDirectory, mDirectory))}`);
@@ -139,8 +136,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
     }
 
     const masterDirectories = getDirectories(path.join(paths.R, paths.M));
-    masterDirectories.forEach(directory => {
-        if(forbiddenDirectories[directory]) { return; }
+    masterDirectories.filter(directory => !forbiddenDirectories[directory]).forEach(directory => {
         const mDirectory = path.join(paths.R, paths.M, directory);
         const sDirectory = path.join(paths.R, paths.S, directory);
         !pathExists(sDirectory) && (createDirectory(sDirectory) || console.status(`create dir\t${formatPath(sDirectory)}`));
