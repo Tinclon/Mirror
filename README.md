@@ -10,6 +10,10 @@ Mirror will recursively visit all directories on the MASTER and SLAVE volumes, m
 
 Files at the root level of the volumes will not be affected.
 
+# Requirements
+
+`node >= 14`
+
 # Installation
 
 `npm install`
