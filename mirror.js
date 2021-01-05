@@ -38,7 +38,10 @@ const pathExists = srcpath => existsSync(srcpath);
 const createDirectory = srcpath => mkdirSync(srcpath);
 const deleteFile = srcpath => removeSync(srcpath);
 const deleteDirectory = srcpath => removeSync(srcpath);
-const copyFile = (srcpath, destpath) => copySync(srcpath, destpath) || lutimesSync(destpath, lstatSync(srcpath).atime, lstatSync(srcpath).mtime);
+const copyFile = (srcpath, destpath) => {
+    try { copySync(srcpath, destpath); } catch (e) { console.status(`error on file\t${formatPath(destpath)}`); }
+    lutimesSync(destpath, lstatSync(srcpath).atime, lstatSync(srcpath).mtime);
+}
 const getTimestamp = srcpath => new Date(inspect(lstatSync(srcpath).mtime));
 const timestampsDiffer = (timestamp1, timestamp2) =>
     Math.abs(timestamp1.getTime() - timestamp2.getTime()) >= 2000 &&
@@ -85,8 +88,6 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
                 if(timestampsDiffer(mModificationTime, sModificationTime)) {
                     // Files were modified at a different time. Copy file to SLAVE (and overwrite).
                     console.status(`update file\t${formatPath(join(sFullDirectory, mFile))}`);
-                    console.status(`master timestamp\t${mModificationTime}`);
-                    console.status(`slave timestamp\t${sModificationTime}`);
                     copyFile(join(mFullDirectory, mFile), join(sFullDirectory, mFile));
                 }
             }
