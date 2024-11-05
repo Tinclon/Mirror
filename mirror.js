@@ -28,8 +28,8 @@ forbiddenFiles[".DS_Store"] = true;
 
 const paths = {
     R: "/Volumes",  // ROOT
-    M: "",          // MASTER
-    S: ""           // SLAVE
+    M: "",          // MAIN
+    S: ""           // SUBSIDIARY
 };
 
 const getDirectories = srcpath => readdirSync(srcpath).filter(file => lstatSync(join(srcpath, file)).isDirectory());
@@ -67,7 +67,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         const sFiles = getFiles(sFullDirectory);
         sFiles.filter(sFile => !forbiddenFiles[sFile]).filter(sFile => !sFile.startsWith("._")).forEach(sFile => {
             if (!mFiles.filter(mFile => mFile === sFile).length) {
-                // Exists in SLAVE, not in MASTER. Delete file from SLAVE.
+                // Exists in SUBSIDIARY, not in MAIN. Delete file from SUBSIDIARY.
                 console.status(`delete file\t${formatPath(join(sFullDirectory, sFile))}`);
                 deleteFile(join(sFullDirectory, sFile));
             }
@@ -78,15 +78,15 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         const sFiles = getFiles(sFullDirectory);
         mFiles.filter(mFile => !forbiddenFiles[mFile]).filter(sFile => !sFile.startsWith("._")).forEach(mFile => {
             if (!sFiles.filter(sFile => sFile === mFile).length) {
-                // Exists in MASTER, not in SLAVE. Copy file to SLAVE.
+                // Exists in MAIN, not in SUBSIDIARY. Copy file to SUBSIDIARY.
                 console.status(`copy file to\t${formatPath(join(sFullDirectory, mFile))}`);
                 copyFile(join(mFullDirectory, mFile), join(sFullDirectory, mFile));
             } else {
-                // Exists in MASTER and in SLAVE. Compare modification timestamps.
+                // Exists in MAIN and in SUBSIDIARY. Compare modification timestamps.
                 const mModificationTime = getTimestamp(join(mFullDirectory, mFile));
                 const sModificationTime = getTimestamp(join(sFullDirectory, mFile));
                 if(timestampsDiffer(mModificationTime, sModificationTime)) {
-                    // Files were modified at a different time. Copy file to SLAVE (and overwrite).
+                    // Files were modified at a different time. Copy file to SUBSIDIARY (and overwrite).
                     console.status(`update file\t${formatPath(join(sFullDirectory, mFile))}`);
                     copyFile(join(mFullDirectory, mFile), join(sFullDirectory, mFile));
                 }
@@ -100,7 +100,7 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         const sDirectories = getDirectories(sFullDirectory);
         sDirectories.filter(sDirectory => !forbiddenDirectories[sDirectory]).forEach(sDirectory => {
             if (!mDirectories.filter(mDirectory => mDirectory === sDirectory).length) {
-                // Exists in SLAVE, not in MASTER. Delete directory from SLAVE.
+                // Exists in SUBSIDIARY, not in MAIN. Delete directory from SUBSIDIARY.
                 console.status(`delete dir\t${formatPath(join(sFullDirectory, sDirectory))}`);
                 deleteDirectory(join(sFullDirectory, sDirectory));
             }
@@ -111,40 +111,40 @@ function mirrorFiles(mFullDirectory, sFullDirectory) {
         const sDirectories = getDirectories(sFullDirectory);
         mDirectories.filter(mDirectory => !forbiddenDirectories[mDirectory]).forEach(mDirectory => {
             if (!sDirectories.filter(sDirectory => sDirectory === mDirectory).length) {
-                // Exists in MASTER, not in SLAVE. Create directory on SLAVE.
+                // Exists in MAIN, not in SUBSIDIARY. Create directory on SUBSIDIARY.
                 console.status(`create dir\t${formatPath(join(sFullDirectory, mDirectory))}`);
                 createDirectory(join(sFullDirectory, mDirectory));
             }
             console.dot();
-            // Exists in MASTER and in SLAVE. Recurse.
+            // Exists in MAIN and in SUBSIDIARY. Recurse.
             mirrorFiles(join(mFullDirectory, mDirectory), join(sFullDirectory, mDirectory));
         });
     }
 }
 
 (function mirror() {
-    // Start by finding the MASTER and SLAVE Volumes
+    // Start by finding the MAIN and SUBSIDIARY Volumes
     const volumes = getDirectories(paths.R);
     volumes.filter(volume => !forbiddenVolumes[volume]).forEach(volume => {
         const files = getFiles(join(paths.R, volume));
-        paths.M = paths.M || files.filter(file => file === "MASTER")[0] && volume;
-        paths.S = paths.S || files.filter(file => file === "SLAVE")[0] && volume;
+        paths.M = paths.M || files.filter(file => file === "MAIN")[0] && volume;
+        paths.S = paths.S || files.filter(file => file === "SUBSIDIARY")[0] && volume;
     });
 
     if(!paths.M) {
-        // MASTER Volume is not connected. Tell user and quit.
-        console.info("Error: MASTER does not exist");
+        // MAIN Volume is not connected. Tell user and quit.
+        console.info("Error: MAIN does not exist");
         return;
     }
 
     if(!paths.S) {
-        // SLAVE Volume is not connected. Tell user and quit.
-        console.info("Error: SLAVE does not exist");
+        // SUBSIDIARY Volume is not connected. Tell user and quit.
+        console.info("Error: SUBSIDIARY does not exist");
         return;
     }
 
-    const masterDirectories = getDirectories(join(paths.R, paths.M));
-    masterDirectories.filter(directory => !forbiddenDirectories[directory]).forEach(directory => {
+    const mainDirectories = getDirectories(join(paths.R, paths.M));
+    mainDirectories.filter(directory => !forbiddenDirectories[directory]).forEach(directory => {
         const mDirectory = join(paths.R, paths.M, directory);
         const sDirectory = join(paths.R, paths.S, directory);
         !pathExists(sDirectory) && (createDirectory(sDirectory) || console.status(`create dir\t${formatPath(sDirectory)}`));
